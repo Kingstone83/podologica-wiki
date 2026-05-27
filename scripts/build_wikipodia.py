@@ -12,7 +12,7 @@ from pathlib import Path
 from pypdf import PdfReader
 
 
-ASSET_VERSION = "20260527-style"
+ASSET_VERSION = "20260527-wiki-restore"
 
 
 SKIP_PREFIXES = (
@@ -228,47 +228,50 @@ def paragraphize(lines: list[str]) -> str:
 
 def sidebar(groups: dict[str, list[Article]], depth: int = 0) -> str:
     nav = "\n".join(
-        f'<a href="{rel(f"categorie/{slugify(name)}.html", depth)}">{html.escape(name)}</a>'
+        f'<a href="{rel(f"categorie/{slugify(name)}.html", depth)}">{html.escape(name)} <span>{len(items)}</span></a>'
         for name, items in groups.items()
     )
     return f"""
-    <header class="site-header">
-      <div class="masthead">
+    <aside class="sidebar" aria-label="Navigazione principale">
       <a class="brand" href="{rel("index.html", depth)}">
-        <span class="wiki-mark" aria-hidden="true">
-          <svg viewBox="0 0 64 64" role="img">
-            <path class="mark-page" d="M16 8h24l8 8v40H16z"/>
-            <path class="mark-fold" d="M40 8v10h10"/>
-            <path class="mark-sole" d="M30 48c-7-4-9-10-7-17 2-8 8-12 14-9 5 3 6 10 3 17-2 6-5 10-10 9z"/>
-            <circle class="mark-toe toe-1" cx="25" cy="19" r="2.4"/>
-            <circle class="mark-toe toe-2" cx="31" cy="16" r="2.2"/>
-            <circle class="mark-toe toe-3" cx="37" cy="17" r="2"/>
-            <circle class="mark-toe toe-4" cx="42" cy="20" r="1.8"/>
-          </svg>
-        </span>
-        <span>
-          <strong>Podologica</strong>
-          <small>Salute del piede, plantari e movimento</small>
-        </span>
+        <span class="wiki-mark">W</span>
+        <strong>Wikipodia</strong>
+        <small>Enciclopedia podologica</small>
       </a>
-      <form class="quick-search" action="{rel("ricerca.html", depth)}">
-        <input name="q" type="search" placeholder="Cerca sintomi, plantari, patologie">
-        <button type="submit">Cerca</button>
-      </form>
-      </div>
-      <nav class="category-nav" aria-label="Categorie principali">
-        <a href="{rel("index.html", depth)}">Home</a>
-        {nav}
-        <a href="{rel("indice.html", depth)}">Indice</a>
+      <nav class="side-nav">
+        <a href="{rel("index.html", depth)}">Pagina principale</a>
+        <a href="{rel("indice.html", depth)}">Indice alfabetico</a>
         <a href="{rel("ricerca.html", depth)}">Ricerca</a>
-        <button id="randomArticle" type="button">Voce casuale</button>
+        <button id="randomArticle" type="button">Una voce a caso</button>
       </nav>
-    </header>
+      <h2>Categorie</h2>
+      <nav class="side-nav side-categories">{nav}</nav>
+      <h2>Informazioni legali</h2>
+      <nav class="side-nav">
+        <a href="{rel("privacy.html", depth)}">Privacy</a>
+        <a href="{rel("cookie.html", depth)}">Cookie</a>
+        <a href="{rel("note-legali.html", depth)}">Note legali</a>
+        <a href="{rel("dichiarazione-cautelativa.html", depth)}">Dichiarazione cautelativa</a>
+      </nav>
+    </aside>
     """
 
 
 def topbar(depth: int = 0) -> str:
-    return ""
+    return f"""
+    <header class="topbar">
+      <nav>
+        <a href="{rel("index.html", depth)}">Leggi</a>
+        <a href="{rel("indice.html", depth)}">Indice</a>
+        <a href="{rel("ricerca.html", depth)}">Cerca</a>
+        <a href="{rel("privacy.html", depth)}">Privacy</a>
+      </nav>
+      <form class="quick-search" action="{rel("ricerca.html", depth)}">
+        <input name="q" type="search" placeholder="Cerca in Wikipodia">
+        <button type="submit">Cerca</button>
+      </form>
+    </header>
+    """
 
 
 def shell(title: str, body: str, groups: dict[str, list[Article]], depth: int = 0) -> str:
@@ -277,27 +280,18 @@ def shell(title: str, body: str, groups: dict[str, list[Article]], depth: int = 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{html.escape(title)} · Podologica</title>
+  <title>{html.escape(title)} · Wikipodia</title>
   <link rel="stylesheet" href="{rel("assets/wiki.css", depth)}?v={ASSET_VERSION}">
   <script src="{rel("assets/search-index.js", depth)}?v={ASSET_VERSION}" defer></script>
   <script src="{rel("assets/wiki.js", depth)}?v={ASSET_VERSION}" defer></script>
 </head>
 <body>
-  <div class="site-shell">
+  <div class="wiki-shell">
     {sidebar(groups, depth)}
     <main class="main">
       {topbar(depth)}
       {body}
     </main>
-    <footer class="site-footer">
-      <p>Informazioni divulgative: non sostituiscono diagnosi, visita o indicazione di un professionista sanitario.</p>
-      <nav>
-        <a href="{rel("privacy.html", depth)}">Privacy</a>
-        <a href="{rel("cookie.html", depth)}">Cookie</a>
-        <a href="{rel("note-legali.html", depth)}">Note legali</a>
-        <a href="{rel("dichiarazione-cautelativa.html", depth)}">Dichiarazione cautelativa</a>
-      </nav>
-    </footer>
   </div>
 </body>
 </html>
@@ -313,29 +307,22 @@ def category_link(category: str, depth: int = 0) -> str:
 
 
 def render_article_card(article: Article, depth: int = 0) -> str:
-    image = rel(page_image(article, article.category), depth)
     return f"""
     <article class="entry-card">
-      <a class="entry-image" href="{article_link(article, depth)}"><img src="{image}" alt=""></a>
-      <div>
-        <span class="kicker">{html.escape(article.category)} · Pagina {article.page:03d}</span>
-        <a class="entry-title" href="{article_link(article, depth)}">{html.escape(article.title)}</a>
-        <p>{html.escape(article.excerpt)}</p>
-      </div>
+      <a class="entry-title" href="{article_link(article, depth)}">{html.escape(article.title)}</a>
+      <p>{html.escape(article.excerpt)}</p>
+      <span>Pagina PDF {article.page:03d}</span>
     </article>
     """
 
 
 def render_home(output_dir: Path, articles: list[Article], groups: dict[str, list[Article]]) -> None:
-    featured = articles[3:9]
-    hero_article = next((article for article in articles if article.page == 23), articles[3])
-    diabetic = [article for article in articles if article.category == "Piede diabetico"][:4]
-    movement = [article for article in articles if article.category == "Cura, movimento e news"][:4]
+    featured = articles[3:7]
     category_panels = "\n".join(
         f"""
         <section class="portal-card">
-          <span class="kicker">{len(items)} voci</span>
           <h2><a href="{category_link(name)}">{html.escape(name)}</a></h2>
+          <p>{len(items)} voci disponibili.</p>
           <ul>
             {"".join(f'<li><a href="{article_link(item)}">{html.escape(item.title)}</a></li>' for item in items[:5])}
           </ul>
@@ -345,54 +332,26 @@ def render_home(output_dir: Path, articles: list[Article], groups: dict[str, lis
     )
     body = f"""
       <section class="welcome">
-        <article class="hero-story">
-          <a class="hero-media" href="{article_link(hero_article)}"><img src="{page_image(hero_article, hero_article.category)}" alt=""></a>
-          <div class="hero-copy">
-            <span class="kicker">{html.escape(hero_article.category)}</span>
-            <h1>Podologia pratica per capire, prevenire e muoversi meglio</h1>
-            <p>Guide divulgative su piede, postura, patologie frequenti, plantari e cura quotidiana, organizzate come un magazine consultabile.</p>
-            <a class="primary-link" href="{article_link(hero_article)}">Leggi: {html.escape(hero_article.title)}</a>
+        <div>
+          <h1>Wikipodia</h1>
+          <p>L'enciclopedia podologica organizzata in categorie, voci, indice alfabetico e ricerca interna.</p>
+          <div class="stats">
+            <strong>{len(articles)}</strong><span>voci</span>
+            <strong>{len(groups)}</strong><span>categorie</span>
+            <strong>{sum(1 for a in articles if "plantari" in a.title.lower())}</strong><span>voci sui plantari</span>
           </div>
-        </article>
-        <aside class="hero-side">
-          <h2>In evidenza</h2>
-          {"".join(f'<a href="{article_link(article)}"><span>{html.escape(article.category)}</span>{html.escape(article.title)}</a>' for article in featured[:4])}
-        </aside>
-      </section>
-
-      <section class="service-strip" aria-label="Servizi utili">
-        <a href="ricerca.html"><strong>Ricerca sintomi</strong><span>Trova rapidamente una voce</span></a>
-        <a href="indice.html"><strong>Indice completo</strong><span>{len(articles)} contenuti dal PDF</span></a>
-        <a href="categorie/plantari-e-ortesi.html"><strong>Plantari e ortesi</strong><span>{len(groups.get("Plantari e ortesi", []))} schede</span></a>
-        <a href="categorie/piede-diabetico.html"><strong>Piede diabetico</strong><span>Prevenzione e cura</span></a>
+        </div>
+        <figure>
+          <img src="assets/podologica/page-004-1.jpg" alt="Schema del piede">
+          <figcaption>Materiali estratti dal documento sorgente.</figcaption>
+        </figure>
       </section>
 
       <section class="portal-grid">
-        <article class="portal-card portal-wide article-strip">
-          <div class="section-heading">
-            <span class="kicker">Ultimi approfondimenti</span>
-            <h2>Guide dal mondo podologico</h2>
-          </div>
+        <article class="portal-card portal-wide">
+          <h2>Voci in evidenza</h2>
           <div class="compact-list">
             {"".join(render_article_card(article) for article in featured)}
-          </div>
-        </article>
-        <article class="portal-card portal-wide article-strip">
-          <div class="section-heading">
-            <span class="kicker">Speciale</span>
-            <h2>Piede diabetico</h2>
-          </div>
-          <div class="compact-list compact-list-four">
-            {"".join(render_article_card(article) for article in diabetic)}
-          </div>
-        </article>
-        <article class="portal-card portal-wide article-strip">
-          <div class="section-heading">
-            <span class="kicker">Movimento</span>
-            <h2>Esercizi, prevenzione e benessere</h2>
-          </div>
-          <div class="compact-list compact-list-four">
-            {"".join(render_article_card(article) for article in movement)}
           </div>
         </article>
         {category_panels}
@@ -402,7 +361,7 @@ def render_home(output_dir: Path, articles: list[Article], groups: dict[str, lis
         Le informazioni sono divulgative e non sostituiscono una valutazione professionale. Leggi anche <a href="note-legali.html">note legali</a>, <a href="privacy.html">privacy</a> e <a href="dichiarazione-cautelativa.html">dichiarazione cautelativa</a>.
       </section>
     """
-    (output_dir / "index.html").write_text(shell("Salute del piede", body, groups), encoding="utf-8")
+    (output_dir / "index.html").write_text(shell("Pagina principale", body, groups), encoding="utf-8")
 
 
 def render_category_pages(output_dir: Path, groups: dict[str, list[Article]]) -> None:
@@ -412,9 +371,9 @@ def render_category_pages(output_dir: Path, groups: dict[str, list[Article]]) ->
         cards = "\n".join(render_article_card(article, depth=1) for article in items)
         body = f"""
         <article class="content-page">
-          <p class="crumb"><a href="../index.html">Home</a> / Categoria</p>
+          <p class="crumb"><a href="../index.html">Pagina principale</a> / Categoria</p>
           <h1>{html.escape(category)}</h1>
-          <p class="lead">Approfondimenti, schede e guide pratiche: {len(items)} voci collegate alla categoria.</p>
+          <p class="lead">Portale con {len(items)} voci collegate alla categoria.</p>
           <div class="entry-grid">{cards}</div>
         </article>
         """
@@ -443,26 +402,24 @@ def render_article_pages(output_dir: Path, articles: list[Article], groups: dict
         )
         body = f"""
         <article class="content-page article-page">
-          <p class="crumb"><a href="../index.html">Home</a> / <a href="{category_link(article.category, depth=1)}">{html.escape(article.category)}</a></p>
+          <p class="crumb"><a href="../index.html">Pagina principale</a> / <a href="{category_link(article.category, depth=1)}">{html.escape(article.category)}</a></p>
           <header class="article-header">
             <div>
-              <span class="kicker">{html.escape(article.category)}</span>
               <h1>{html.escape(article.title)}</h1>
-              <p class="lead">Guida divulgativa tratta dalla pagina {article.page:03d} del documento sorgente.</p>
-              <p class="byline">Redazione Podologica · Revisione editoriale consigliata prima dell'uso professionale</p>
+              <p class="lead">Voce tratta dalla pagina {article.page:03d} del documento sorgente.</p>
             </div>
             <aside class="infobox">
-              <h2>Scheda rapida</h2>
+              <h2>Scheda voce</h2>
               <img src="{image}" alt="">
               <dl>
                 <dt>Categoria</dt><dd><a href="{category_link(article.category, depth=1)}">{html.escape(article.category)}</a></dd>
                 <dt>Pagina fonte</dt><dd>{article.page:03d}</dd>
-                <dt>Tipo</dt><dd>Approfondimento</dd>
+                <dt>Tipo</dt><dd>Voce enciclopedica</dd>
               </dl>
             </aside>
           </header>
           <nav class="article-tabs">
-            <a aria-current="page" href="#">Articolo</a>
+            <a aria-current="page" href="#">Voce</a>
             <a href="../ricerca.html?q={html.escape(article.title)}">Cerca correlati</a>
             <a href="{category_link(article.category, depth=1)}">Categoria</a>
           </nav>
@@ -496,7 +453,7 @@ def render_index_page(output_dir: Path, articles: list[Article], groups: dict[st
     body = f"""
       <article class="content-page">
         <h1>Indice alfabetico</h1>
-        <p class="lead">Tutte le guide e le schede pubblicate in Podologica.</p>
+        <p class="lead">Tutte le voci pubblicate in Wikipodia.</p>
         <div class="alpha-grid">{blocks}</div>
       </article>
     """
@@ -507,7 +464,7 @@ def render_search_page(output_dir: Path, groups: dict[str, list[Article]]) -> No
     body = """
       <article class="content-page search-page">
         <h1>Ricerca</h1>
-        <p class="lead">Cerca negli articoli, nelle categorie e nel testo estratto dal documento.</p>
+        <p class="lead">Cerca nelle voci, nelle categorie e nel testo estratto dal documento.</p>
         <form class="search-panel" id="searchForm">
           <input id="searchInput" name="q" type="search" placeholder="Es. alluce valgo, piede diabetico, plantari">
           <button type="submit">Cerca</button>
@@ -742,28 +699,23 @@ WIKI_JS = """(() => {
 
 WIKI_CSS = """:root {
   color-scheme: light;
-  --page: #f2f7f7;
+  --page: #f8f9fa;
   --surface: #fff;
-  --ink: #182326;
-  --muted: #5e6f73;
-  --border: #8ea6aa;
-  --soft-border: #d7e3e5;
-  --blue: #0b5f7a;
-  --blue-soft: #e6f4f7;
-  --green: #2d7a63;
-  --green-soft: #edf8f3;
-  --yellow-soft: #fff6df;
-  --coral: #c75d4b;
-  --sidebar: #e8f1f2;
+  --ink: #202122;
+  --muted: #54595d;
+  --border: #a2a9b1;
+  --soft-border: #d8dce0;
+  --blue: #0645ad;
+  --blue-soft: #eaf3ff;
+  --green-soft: #eef7ed;
+  --yellow-soft: #fff8df;
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0;
   color: var(--ink);
-  background:
-    linear-gradient(90deg, rgba(11, 95, 122, .05), transparent 34rem),
-    var(--page);
+  background: var(--page);
   font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 a { color: var(--blue); text-decoration: none; }
@@ -772,7 +724,7 @@ button, input { font: inherit; }
 
 .wiki-shell {
   display: grid;
-  grid-template-columns: 276px minmax(0, 1fr);
+  grid-template-columns: 250px minmax(0, 1fr);
   min-height: 100vh;
 }
 .sidebar {
@@ -781,66 +733,32 @@ button, input { font: inherit; }
   height: 100vh;
   overflow: auto;
   border-right: 1px solid var(--soft-border);
-  background: var(--sidebar);
-  padding: 22px 18px;
+  background: #f4f6f8;
+  padding: 20px 16px;
 }
 .brand {
   display: grid;
-  grid-template-columns: 68px minmax(0, 1fr);
-  gap: 7px 12px;
-  align-items: center;
+  gap: 8px;
   color: var(--ink);
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 .brand:hover { text-decoration: none; }
 .wiki-mark {
   display: grid;
   place-items: center;
-  grid-row: span 2;
-  width: 68px;
-  height: 68px;
-  border: 1px solid rgba(11, 95, 122, .26);
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, .9), transparent 34px),
-    linear-gradient(145deg, #ffffff, #d7edf0);
-  box-shadow: 0 10px 26px rgba(24, 35, 38, .12);
-}
-.wiki-mark svg {
-  width: 52px;
-  height: 52px;
-}
-.mark-page {
-  fill: #ffffff;
-  stroke: #0b5f7a;
-  stroke-width: 2;
-  stroke-linejoin: round;
-}
-.mark-fold {
-  fill: none;
-  stroke: #0b5f7a;
-  stroke-width: 2;
-  stroke-linejoin: round;
-}
-.mark-sole {
-  fill: #2d7a63;
-}
-.mark-toe {
-  fill: #c75d4b;
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--soft-border);
+  border-radius: 4px;
+  background: #fff;
+  font: 2.5rem/1 Georgia, "Times New Roman", serif;
 }
 .brand strong {
-  font: 800 1.45rem/1.05 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  letter-spacing: 0;
+  font: 1.55rem/1 Georgia, "Times New Roman", serif;
 }
-.brand strong span {
-  color: var(--green);
-}
-.brand small {
-  grid-column: 2;
-  color: var(--muted);
-}
+.brand small { color: var(--muted); }
 .sidebar h2 {
-  margin: 22px 8px 8px;
+  margin: 20px 8px 8px;
   font-size: .84rem;
   color: var(--muted);
   text-transform: uppercase;
@@ -856,7 +774,7 @@ button, input { font: inherit; }
   gap: 12px;
   width: 100%;
   border: 0;
-  border-radius: 8px;
+  border-radius: 4px;
   background: transparent;
   padding: 8px 9px;
   color: var(--ink);
@@ -865,7 +783,7 @@ button, input { font: inherit; }
 }
 .side-nav a:hover,
 .side-nav button:hover {
-  background: #d8ebef;
+  background: var(--blue-soft);
   text-decoration: none;
 }
 .side-categories span {
@@ -879,8 +797,7 @@ button, input { font: inherit; }
   justify-content: space-between;
   gap: 16px;
   border-bottom: 1px solid var(--soft-border);
-  background: rgba(255, 255, 255, .88);
-  backdrop-filter: blur(10px);
+  background: var(--surface);
   padding: 10px 22px;
 }
 .topbar nav {
@@ -896,17 +813,16 @@ button, input { font: inherit; }
 .search-panel input {
   min-height: 38px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 4px;
   background: #fff;
   padding: 0 12px;
 }
 .quick-search button,
 .search-panel button {
   min-height: 38px;
-  border: 1px solid #0b5f7a;
-  border-radius: 8px;
-  color: #fff;
-  background: #0b5f7a;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #f8f9fa;
   cursor: pointer;
 }
 .welcome,
@@ -931,7 +847,6 @@ h1, .content-page > h2 {
 h1 {
   font-size: clamp(2.25rem, 5vw, 3.8rem);
   line-height: 1.05;
-  color: #12363f;
 }
 .lead {
   max-width: 760px;
@@ -951,11 +866,9 @@ figure {
   margin: 0;
   border: 1px solid var(--border);
   background: var(--surface);
-  padding: 9px;
-  border-radius: 10px;
+  padding: 8px;
   color: var(--muted);
   font-size: .84rem;
-  box-shadow: 0 14px 34px rgba(24, 35, 38, .09);
 }
 figure img,
 .infobox img {
@@ -973,10 +886,9 @@ figure img,
 }
 .portal-card {
   border: 1px solid var(--soft-border);
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--surface);
   padding: 16px;
-  box-shadow: 0 10px 26px rgba(24, 35, 38, .06);
 }
 .portal-card:nth-child(3n) { background: var(--green-soft); }
 .portal-card:nth-child(4n) { background: var(--yellow-soft); }
@@ -1008,7 +920,7 @@ figure img,
 }
 .entry-card {
   border: 1px solid var(--soft-border);
-  border-radius: 8px;
+  border-radius: 4px;
   background: #fff;
   padding: 13px 14px;
 }
@@ -1029,8 +941,7 @@ figure img,
 .notice {
   width: min(100% - 44px, 1160px);
   margin: 0 auto 48px;
-  border-left: 4px solid var(--coral);
-  border-radius: 8px;
+  border-left: 4px solid #946200;
   background: var(--yellow-soft);
   padding: 12px 14px;
 }
@@ -1047,15 +958,13 @@ figure img,
 }
 .infobox {
   border: 1px solid var(--border);
-  border-radius: 10px;
   background: #fff;
   font-size: .9rem;
-  overflow: hidden;
 }
 .infobox h2 {
   margin: 0;
   padding: 10px 12px;
-  background: #d9eef0;
+  background: #dbe8fb;
   font: 700 1rem/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   text-align: center;
 }
@@ -1086,7 +995,7 @@ figure img,
 .article-tabs a,
 .prev-next a {
   border: 1px solid var(--soft-border);
-  border-radius: 8px;
+  border-radius: 4px;
   background: #fff;
   padding: 6px 10px;
 }
@@ -1136,10 +1045,9 @@ figure img,
 .legal-text {
   max-width: 860px;
   border: 1px solid var(--soft-border);
-  border-radius: 10px;
+  border-radius: 4px;
   background: #fff;
   padding: 18px 20px;
-  box-shadow: 0 10px 26px rgba(24, 35, 38, .06);
 }
 .legal-text p {
   margin: 0 0 14px;
