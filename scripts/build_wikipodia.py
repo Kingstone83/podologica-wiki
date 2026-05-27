@@ -225,50 +225,47 @@ def paragraphize(lines: list[str]) -> str:
 
 def sidebar(groups: dict[str, list[Article]], depth: int = 0) -> str:
     nav = "\n".join(
-        f'<a href="{rel(f"categorie/{slugify(name)}.html", depth)}">{html.escape(name)} <span>{len(items)}</span></a>'
+        f'<a href="{rel(f"categorie/{slugify(name)}.html", depth)}">{html.escape(name)}</a>'
         for name, items in groups.items()
     )
     return f"""
-    <aside class="sidebar" aria-label="Navigazione principale">
+    <header class="site-header">
+      <div class="masthead">
       <a class="brand" href="{rel("index.html", depth)}">
-        <span class="wiki-mark">W</span>
-        <strong>Wikipodia</strong>
-        <small>Enciclopedia podologica</small>
+        <span class="wiki-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" role="img">
+            <path class="mark-page" d="M16 8h24l8 8v40H16z"/>
+            <path class="mark-fold" d="M40 8v10h10"/>
+            <path class="mark-sole" d="M30 48c-7-4-9-10-7-17 2-8 8-12 14-9 5 3 6 10 3 17-2 6-5 10-10 9z"/>
+            <circle class="mark-toe toe-1" cx="25" cy="19" r="2.4"/>
+            <circle class="mark-toe toe-2" cx="31" cy="16" r="2.2"/>
+            <circle class="mark-toe toe-3" cx="37" cy="17" r="2"/>
+            <circle class="mark-toe toe-4" cx="42" cy="20" r="1.8"/>
+          </svg>
+        </span>
+        <span>
+          <strong>Podologica</strong>
+          <small>Salute del piede, plantari e movimento</small>
+        </span>
       </a>
-      <nav class="side-nav">
-        <a href="{rel("index.html", depth)}">Pagina principale</a>
-        <a href="{rel("indice.html", depth)}">Indice alfabetico</a>
+      <form class="quick-search" action="{rel("ricerca.html", depth)}">
+        <input name="q" type="search" placeholder="Cerca sintomi, plantari, patologie">
+        <button type="submit">Cerca</button>
+      </form>
+      </div>
+      <nav class="category-nav" aria-label="Categorie principali">
+        <a href="{rel("index.html", depth)}">Home</a>
+        {nav}
+        <a href="{rel("indice.html", depth)}">Indice</a>
         <a href="{rel("ricerca.html", depth)}">Ricerca</a>
-        <button id="randomArticle" type="button">Una voce a caso</button>
+        <button id="randomArticle" type="button">Voce casuale</button>
       </nav>
-      <h2>Categorie</h2>
-      <nav class="side-nav side-categories">{nav}</nav>
-      <h2>Informazioni legali</h2>
-      <nav class="side-nav">
-        <a href="{rel("privacy.html", depth)}">Privacy</a>
-        <a href="{rel("cookie.html", depth)}">Cookie</a>
-        <a href="{rel("note-legali.html", depth)}">Note legali</a>
-        <a href="{rel("dichiarazione-cautelativa.html", depth)}">Dichiarazione cautelativa</a>
-      </nav>
-    </aside>
+    </header>
     """
 
 
 def topbar(depth: int = 0) -> str:
-    return f"""
-    <header class="topbar">
-      <nav>
-        <a href="{rel("index.html", depth)}">Leggi</a>
-        <a href="{rel("indice.html", depth)}">Indice</a>
-        <a href="{rel("ricerca.html", depth)}">Cerca</a>
-        <a href="{rel("privacy.html", depth)}">Privacy</a>
-      </nav>
-      <form class="quick-search" action="{rel("ricerca.html", depth)}">
-        <input name="q" type="search" placeholder="Cerca in Wikipodia">
-        <button type="submit">Cerca</button>
-      </form>
-    </header>
-    """
+    return ""
 
 
 def shell(title: str, body: str, groups: dict[str, list[Article]], depth: int = 0) -> str:
@@ -277,18 +274,27 @@ def shell(title: str, body: str, groups: dict[str, list[Article]], depth: int = 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{html.escape(title)} · Wikipodia</title>
+  <title>{html.escape(title)} · Podologica</title>
   <link rel="stylesheet" href="{rel("assets/wiki.css", depth)}">
   <script src="{rel("assets/search-index.js", depth)}" defer></script>
   <script src="{rel("assets/wiki.js", depth)}" defer></script>
 </head>
 <body>
-  <div class="wiki-shell">
+  <div class="site-shell">
     {sidebar(groups, depth)}
     <main class="main">
       {topbar(depth)}
       {body}
     </main>
+    <footer class="site-footer">
+      <p>Informazioni divulgative: non sostituiscono diagnosi, visita o indicazione di un professionista sanitario.</p>
+      <nav>
+        <a href="{rel("privacy.html", depth)}">Privacy</a>
+        <a href="{rel("cookie.html", depth)}">Cookie</a>
+        <a href="{rel("note-legali.html", depth)}">Note legali</a>
+        <a href="{rel("dichiarazione-cautelativa.html", depth)}">Dichiarazione cautelativa</a>
+      </nav>
+    </footer>
   </div>
 </body>
 </html>
@@ -304,11 +310,15 @@ def category_link(category: str, depth: int = 0) -> str:
 
 
 def render_article_card(article: Article, depth: int = 0) -> str:
+    image = rel(page_image(article, article.category), depth)
     return f"""
     <article class="entry-card">
-      <a class="entry-title" href="{article_link(article, depth)}">{html.escape(article.title)}</a>
-      <p>{html.escape(article.excerpt)}</p>
-      <span>Pagina PDF {article.page:03d}</span>
+      <a class="entry-image" href="{article_link(article, depth)}"><img src="{image}" alt=""></a>
+      <div>
+        <span class="kicker">{html.escape(article.category)} · Pagina {article.page:03d}</span>
+        <a class="entry-title" href="{article_link(article, depth)}">{html.escape(article.title)}</a>
+        <p>{html.escape(article.excerpt)}</p>
+      </div>
     </article>
     """
 
@@ -696,23 +706,28 @@ WIKI_JS = """(() => {
 
 WIKI_CSS = """:root {
   color-scheme: light;
-  --page: #f8f9fa;
+  --page: #f2f7f7;
   --surface: #fff;
-  --ink: #202122;
-  --muted: #54595d;
-  --border: #a2a9b1;
-  --soft-border: #d8dce0;
-  --blue: #0645ad;
-  --blue-soft: #eaf3ff;
-  --green-soft: #eef7ed;
-  --yellow-soft: #fff8df;
+  --ink: #182326;
+  --muted: #5e6f73;
+  --border: #8ea6aa;
+  --soft-border: #d7e3e5;
+  --blue: #0b5f7a;
+  --blue-soft: #e6f4f7;
+  --green: #2d7a63;
+  --green-soft: #edf8f3;
+  --yellow-soft: #fff6df;
+  --coral: #c75d4b;
+  --sidebar: #e8f1f2;
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0;
   color: var(--ink);
-  background: var(--page);
+  background:
+    linear-gradient(90deg, rgba(11, 95, 122, .05), transparent 34rem),
+    var(--page);
   font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 a { color: var(--blue); text-decoration: none; }
@@ -721,7 +736,7 @@ button, input { font: inherit; }
 
 .wiki-shell {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
+  grid-template-columns: 276px minmax(0, 1fr);
   min-height: 100vh;
 }
 .sidebar {
@@ -730,32 +745,66 @@ button, input { font: inherit; }
   height: 100vh;
   overflow: auto;
   border-right: 1px solid var(--soft-border);
-  background: #f4f6f8;
-  padding: 20px 16px;
+  background: var(--sidebar);
+  padding: 22px 18px;
 }
 .brand {
   display: grid;
-  gap: 8px;
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: 7px 12px;
+  align-items: center;
   color: var(--ink);
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 .brand:hover { text-decoration: none; }
 .wiki-mark {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
-  border: 1px solid var(--soft-border);
-  border-radius: 4px;
-  background: #fff;
-  font: 2.5rem/1 Georgia, "Times New Roman", serif;
+  grid-row: span 2;
+  width: 68px;
+  height: 68px;
+  border: 1px solid rgba(11, 95, 122, .26);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, .9), transparent 34px),
+    linear-gradient(145deg, #ffffff, #d7edf0);
+  box-shadow: 0 10px 26px rgba(24, 35, 38, .12);
+}
+.wiki-mark svg {
+  width: 52px;
+  height: 52px;
+}
+.mark-page {
+  fill: #ffffff;
+  stroke: #0b5f7a;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.mark-fold {
+  fill: none;
+  stroke: #0b5f7a;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.mark-sole {
+  fill: #2d7a63;
+}
+.mark-toe {
+  fill: #c75d4b;
 }
 .brand strong {
-  font: 1.55rem/1 Georgia, "Times New Roman", serif;
+  font: 800 1.45rem/1.05 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
 }
-.brand small { color: var(--muted); }
+.brand strong span {
+  color: var(--green);
+}
+.brand small {
+  grid-column: 2;
+  color: var(--muted);
+}
 .sidebar h2 {
-  margin: 20px 8px 8px;
+  margin: 22px 8px 8px;
   font-size: .84rem;
   color: var(--muted);
   text-transform: uppercase;
@@ -771,7 +820,7 @@ button, input { font: inherit; }
   gap: 12px;
   width: 100%;
   border: 0;
-  border-radius: 4px;
+  border-radius: 8px;
   background: transparent;
   padding: 8px 9px;
   color: var(--ink);
@@ -780,7 +829,7 @@ button, input { font: inherit; }
 }
 .side-nav a:hover,
 .side-nav button:hover {
-  background: var(--blue-soft);
+  background: #d8ebef;
   text-decoration: none;
 }
 .side-categories span {
@@ -794,7 +843,8 @@ button, input { font: inherit; }
   justify-content: space-between;
   gap: 16px;
   border-bottom: 1px solid var(--soft-border);
-  background: var(--surface);
+  background: rgba(255, 255, 255, .88);
+  backdrop-filter: blur(10px);
   padding: 10px 22px;
 }
 .topbar nav {
@@ -810,16 +860,17 @@ button, input { font: inherit; }
 .search-panel input {
   min-height: 38px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 8px;
   background: #fff;
   padding: 0 12px;
 }
 .quick-search button,
 .search-panel button {
   min-height: 38px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: #f8f9fa;
+  border: 1px solid #0b5f7a;
+  border-radius: 8px;
+  color: #fff;
+  background: #0b5f7a;
   cursor: pointer;
 }
 .welcome,
@@ -844,6 +895,7 @@ h1, .content-page > h2 {
 h1 {
   font-size: clamp(2.25rem, 5vw, 3.8rem);
   line-height: 1.05;
+  color: #12363f;
 }
 .lead {
   max-width: 760px;
@@ -863,9 +915,11 @@ figure {
   margin: 0;
   border: 1px solid var(--border);
   background: var(--surface);
-  padding: 8px;
+  padding: 9px;
+  border-radius: 10px;
   color: var(--muted);
   font-size: .84rem;
+  box-shadow: 0 14px 34px rgba(24, 35, 38, .09);
 }
 figure img,
 .infobox img {
@@ -883,9 +937,10 @@ figure img,
 }
 .portal-card {
   border: 1px solid var(--soft-border);
-  border-radius: 4px;
+  border-radius: 10px;
   background: var(--surface);
   padding: 16px;
+  box-shadow: 0 10px 26px rgba(24, 35, 38, .06);
 }
 .portal-card:nth-child(3n) { background: var(--green-soft); }
 .portal-card:nth-child(4n) { background: var(--yellow-soft); }
@@ -917,7 +972,7 @@ figure img,
 }
 .entry-card {
   border: 1px solid var(--soft-border);
-  border-radius: 4px;
+  border-radius: 8px;
   background: #fff;
   padding: 13px 14px;
 }
@@ -938,7 +993,8 @@ figure img,
 .notice {
   width: min(100% - 44px, 1160px);
   margin: 0 auto 48px;
-  border-left: 4px solid #946200;
+  border-left: 4px solid var(--coral);
+  border-radius: 8px;
   background: var(--yellow-soft);
   padding: 12px 14px;
 }
@@ -955,13 +1011,15 @@ figure img,
 }
 .infobox {
   border: 1px solid var(--border);
+  border-radius: 10px;
   background: #fff;
   font-size: .9rem;
+  overflow: hidden;
 }
 .infobox h2 {
   margin: 0;
   padding: 10px 12px;
-  background: #dbe8fb;
+  background: #d9eef0;
   font: 700 1rem/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   text-align: center;
 }
@@ -992,7 +1050,7 @@ figure img,
 .article-tabs a,
 .prev-next a {
   border: 1px solid var(--soft-border);
-  border-radius: 4px;
+  border-radius: 8px;
   background: #fff;
   padding: 6px 10px;
 }
@@ -1042,9 +1100,10 @@ figure img,
 .legal-text {
   max-width: 860px;
   border: 1px solid var(--soft-border);
-  border-radius: 4px;
+  border-radius: 10px;
   background: #fff;
   padding: 18px 20px;
+  box-shadow: 0 10px 26px rgba(24, 35, 38, .06);
 }
 .legal-text p {
   margin: 0 0 14px;
