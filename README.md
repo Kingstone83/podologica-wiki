@@ -2,6 +2,15 @@
 
 Sito enciclopedico statico sul piede e sulle principali tematiche podologiche, generato a partire dal documento `podologica.pdf`.
 
+La struttura e in stile wiki:
+
+- pagina principale a portali e categorie
+- pagine categoria in `categorie/`
+- voci singole in `voci/`
+- indice alfabetico
+- ricerca interna statica
+- voce casuale
+
 ## Pubblicazione
 
 Il sito e pronto per GitHub Pages. La pagina principale e `index.html`.
@@ -11,5 +20,5 @@ Il sito e pronto per GitHub Pages. La pagina principale e `index.html`.
 Per rigenerare `index.html` da un PDF aggiornato:
 
 ```bash
-python3 scripts/build_wikipodia.py /percorso/al/podologica.pdf index.html
+python3 scripts/build_wikipodia.py /percorso/al/podologica.pdf .
 ```

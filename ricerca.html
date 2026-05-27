@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ricerca · Wikipodia</title>
+  <link rel="stylesheet" href="assets/wiki.css">
+  <script src="assets/search-index.js" defer></script>
+  <script src="assets/wiki.js" defer></script>
+</head>
+<body>
+  <div class="wiki-shell">
+    
+    <aside class="sidebar" aria-label="Navigazione principale">
+      <a class="brand" href="index.html">
+        <span class="wiki-mark">W</span>
+        <strong>Wikipodia</strong>
+        <small>Enciclopedia podologica</small>
+      </a>
+      <nav class="side-nav">
+        <a href="index.html">Pagina principale</a>
+        <a href="indice.html">Indice alfabetico</a>
+        <a href="ricerca.html">Ricerca</a>
+        <button id="randomArticle" type="button">Una voce a caso</button>
+      </nav>
+      <h2>Categorie</h2>
+      <nav class="side-nav side-categories"><a href="categorie/introduzione.html">Introduzione <span>1</span></a>
+<a href="categorie/conosci-il-tuo-piede.html">Conosci il tuo piede <span>11</span></a>
+<a href="categorie/enciclopedia-delle-patologie.html">Enciclopedia delle patologie <span>58</span></a>
+<a href="categorie/plantari-e-ortesi.html">Plantari e ortesi <span>77</span></a>
+<a href="categorie/analisi-e-trattamento.html">Analisi e trattamento <span>7</span></a>
+<a href="categorie/piede-diabetico.html">Piede diabetico <span>21</span></a>
+<a href="categorie/cura-movimento-e-news.html">Cura, movimento e news <span>23</span></a>
+<a href="categorie/contatti.html">Contatti <span>2</span></a>
+<a href="categorie/tecnica-ortopedica.html">Tecnica ortopedica <span>12</span></a></nav>
+    </aside>
+    
+    <main class="main">
+      
+    <header class="topbar">
+      <nav>
+        <a href="index.html">Leggi</a>
+        <a href="indice.html">Indice</a>
+        <a href="ricerca.html">Cerca</a>
+      </nav>
+      <form class="quick-search" action="ricerca.html">
+        <input name="q" type="search" placeholder="Cerca in Wikipodia">
+        <button type="submit">Cerca</button>
+      </form>
+    </header>
+    
+      
+      <article class="content-page search-page">
+        <h1>Ricerca</h1>
+        <p class="lead">Cerca nelle voci, nelle categorie e nel testo estratto dal documento.</p>
+        <form class="search-panel" id="searchForm">
+          <input id="searchInput" name="q" type="search" placeholder="Es. alluce valgo, piede diabetico, plantari">
+          <button type="submit">Cerca</button>
+        </form>
+        <div id="searchResults" class="search-results"></div>
+      </article>
+    
+    </main>
+  </div>
+</body>
+</html>
