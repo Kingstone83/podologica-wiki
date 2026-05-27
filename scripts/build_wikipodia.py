@@ -239,11 +239,17 @@ def sidebar(groups: dict[str, list[Article]], depth: int = 0) -> str:
         <a href="{rel("index.html", depth)}">Pagina principale</a>
         <a href="{rel("indice.html", depth)}">Indice alfabetico</a>
         <a href="{rel("ricerca.html", depth)}">Ricerca</a>
-        <a href="{rel("dichiarazione-cautelativa.html", depth)}">Dichiarazione cautelativa</a>
         <button id="randomArticle" type="button">Una voce a caso</button>
       </nav>
       <h2>Categorie</h2>
       <nav class="side-nav side-categories">{nav}</nav>
+      <h2>Informazioni legali</h2>
+      <nav class="side-nav">
+        <a href="{rel("privacy.html", depth)}">Privacy</a>
+        <a href="{rel("cookie.html", depth)}">Cookie</a>
+        <a href="{rel("note-legali.html", depth)}">Note legali</a>
+        <a href="{rel("dichiarazione-cautelativa.html", depth)}">Dichiarazione cautelativa</a>
+      </nav>
     </aside>
     """
 
@@ -255,7 +261,7 @@ def topbar(depth: int = 0) -> str:
         <a href="{rel("index.html", depth)}">Leggi</a>
         <a href="{rel("indice.html", depth)}">Indice</a>
         <a href="{rel("ricerca.html", depth)}">Cerca</a>
-        <a href="{rel("dichiarazione-cautelativa.html", depth)}">Dichiarazione</a>
+        <a href="{rel("privacy.html", depth)}">Privacy</a>
       </nav>
       <form class="quick-search" action="{rel("ricerca.html", depth)}">
         <input name="q" type="search" placeholder="Cerca in Wikipodia">
@@ -349,7 +355,7 @@ def render_home(output_dir: Path, articles: list[Article], groups: dict[str, lis
       </section>
 
       <section class="notice">
-        Le informazioni sono divulgative e non sostituiscono una valutazione professionale. Leggi anche la <a href="dichiarazione-cautelativa.html">dichiarazione cautelativa</a>.
+        Le informazioni sono divulgative e non sostituiscono una valutazione professionale. Leggi anche <a href="note-legali.html">note legali</a>, <a href="privacy.html">privacy</a> e <a href="dichiarazione-cautelativa.html">dichiarazione cautelativa</a>.
       </section>
     """
     (output_dir / "index.html").write_text(shell("Pagina principale", body, groups), encoding="utf-8")
@@ -486,6 +492,102 @@ def render_disclaimer_page(output_dir: Path, groups: dict[str, list[Article]]) -
     (output_dir / "dichiarazione-cautelativa.html").write_text(shell("Dichiarazione cautelativa", body, groups), encoding="utf-8")
 
 
+def render_privacy_page(output_dir: Path, groups: dict[str, list[Article]]) -> None:
+    body = """
+      <article class="content-page legal-page">
+        <h1>Privacy</h1>
+        <p class="lead">Informativa sintetica per un sito statico ospitato tramite GitHub Pages, senza registrazione utenti, newsletter, form di contatto o strumenti di analytics gestiti dal sito.</p>
+
+        <section class="legal-text">
+          <h2>Titolare e contatti</h2>
+          <p>Il sito è pubblicato dal gestore del repository GitHub <strong>Kingstone83/podologica-wiki</strong>. Prima di un uso professionale o commerciale, questa sezione deve essere completata con i dati identificativi e un recapito effettivo del titolare del trattamento.</p>
+
+          <h2>Dati trattati direttamente dal sito</h2>
+          <p>Questo sito è composto da pagine statiche HTML, CSS e JavaScript. Non prevede account, commenti, moduli di contatto, newsletter, pagamenti o aree riservate. La ricerca interna funziona nel browser dell'utente usando un indice statico scaricato con il sito.</p>
+
+          <h2>Dati tecnici di navigazione</h2>
+          <p>La pubblicazione avviene tramite GitHub Pages. Durante l'accesso alle pagine, GitHub può trattare dati tecnici necessari all'erogazione e alla sicurezza del servizio, come indirizzo IP, data e ora della richiesta, risorsa richiesta, user agent e informazioni tecniche analoghe, secondo la propria informativa privacy.</p>
+
+          <h2>Finalità</h2>
+          <p>Le finalità sono: rendere disponibili le pagine del sito, consentire la navigazione, mantenere sicurezza e integrità del servizio di hosting, e permettere una ricerca locale tra i contenuti pubblicati.</p>
+
+          <h2>Base giuridica</h2>
+          <p>Per le attività tecniche essenziali alla visualizzazione del sito, la base giuridica può essere individuata nell'interesse legittimo alla pubblicazione, sicurezza e corretto funzionamento del sito. Eventuali trattamenti autonomi effettuati da GitHub sono disciplinati dalle informative e condizioni di GitHub.</p>
+
+          <h2>Cookie e tracciamento</h2>
+          <p>Il sito non installa cookie di profilazione, non usa strumenti di analytics propri e non incorpora contenuti pubblicitari o social plugin. Per maggiori dettagli consulta la <a href="cookie.html">cookie policy</a>.</p>
+
+          <h2>Comunicazione e trasferimenti</h2>
+          <p>I contenuti sono ospitati su infrastruttura GitHub Pages. GitHub può trattare dati tecnici anche attraverso società del proprio gruppo o fornitori, secondo le proprie condizioni e informative. Il gestore del sito non riceve statistiche nominative sugli utenti dal codice del sito.</p>
+
+          <h2>Diritti dell'utente</h2>
+          <p>Nei limiti applicabili, l'utente può chiedere accesso, rettifica, cancellazione, limitazione, opposizione o altre tutele previste dalla normativa privacy. Per trattamenti effettuati direttamente da GitHub occorre rivolgersi a GitHub secondo i canali indicati nella sua informativa.</p>
+
+          <h2>Avvertenza</h2>
+          <p>Questa informativa è una base prudenziale per un sito statico e deve essere verificata da un professionista prima dell'uso commerciale, sanitario, promozionale o quando vengano aggiunti form, analytics, newsletter, mappe, video incorporati, cookie o servizi di terze parti.</p>
+        </section>
+      </article>
+    """
+    (output_dir / "privacy.html").write_text(shell("Privacy", body, groups), encoding="utf-8")
+
+
+def render_cookie_page(output_dir: Path, groups: dict[str, list[Article]]) -> None:
+    body = """
+      <article class="content-page legal-page">
+        <h1>Cookie</h1>
+        <p class="lead">Informazioni sull'uso di cookie e altri strumenti di tracciamento.</p>
+
+        <section class="legal-text">
+          <h2>Cookie usati dal sito</h2>
+          <p>Il sito non imposta cookie propri, non usa cookie di profilazione, non utilizza sistemi pubblicitari e non integra analytics di prima parte o di terze parti.</p>
+
+          <h2>Ricerca interna</h2>
+          <p>La ricerca utilizza un file statico del sito e viene eseguita localmente nel browser. La query può comparire nell'indirizzo della pagina, ad esempio come parametro <code>?q=alluce</code>, ma non viene salvata dal sito in database o profili utente.</p>
+
+          <h2>GitHub Pages</h2>
+          <p>Il sito è ospitato da GitHub Pages. GitHub può trattare dati tecnici di navigazione per fornire, proteggere e mantenere il servizio. Per informazioni complete si rimanda alla documentazione e all'informativa privacy di GitHub.</p>
+
+          <h2>Banner cookie</h2>
+          <p>Poiché il sito non usa cookie di profilazione, strumenti pubblicitari, analytics o tecnologie assimilabili gestite dal sito, non viene mostrato un banner di consenso. Se in futuro verranno aggiunti servizi che installano cookie o tracciatori non tecnici, questa pagina e il meccanismo di consenso dovranno essere aggiornati prima della pubblicazione.</p>
+        </section>
+      </article>
+    """
+    (output_dir / "cookie.html").write_text(shell("Cookie", body, groups), encoding="utf-8")
+
+
+def render_legal_page(output_dir: Path, groups: dict[str, list[Article]]) -> None:
+    body = """
+      <article class="content-page legal-page">
+        <h1>Note legali</h1>
+        <p class="lead">Condizioni e avvertenze generali per la consultazione del sito.</p>
+
+        <section class="legal-text">
+          <h2>Natura dei contenuti</h2>
+          <p>I contenuti hanno finalità informative, divulgative e di supporto editoriale. Non costituiscono consulenza medica, diagnosi, prescrizione, parere professionale, pubblicità sanitaria o indicazione terapeutica personalizzata.</p>
+
+          <h2>Uso dei contenuti</h2>
+          <p>Le informazioni devono essere verificate con professionisti qualificati prima di assumere decisioni cliniche, sanitarie, commerciali o legali. In presenza di sintomi, dolore, lesioni o patologie, è necessario rivolgersi a un medico, podologo o altro professionista sanitario abilitato.</p>
+
+          <h2>Originalità, fonti e revisione</h2>
+          <p>I testi sono materiale provvisorio e devono essere sottoposti a revisione editoriale, legale e documentale prima dell'uso commerciale o promozionale. Per maggiori dettagli consulta la <a href="dichiarazione-cautelativa.html">dichiarazione cautelativa</a>.</p>
+
+          <h2>Marchi, immagini e contenuti di terzi</h2>
+          <p>Eventuali marchi, denominazioni, immagini o riferimenti riconducibili a terzi appartengono ai rispettivi titolari. La presenza nel sito non implica approvazione, affiliazione o autorizzazione, salvo diversa indicazione documentata.</p>
+
+          <h2>Limitazione di responsabilità</h2>
+          <p>Il gestore del sito non garantisce completezza, aggiornamento, accuratezza o idoneità dei contenuti per finalità specifiche. Il sito può essere modificato, sospeso o rimosso in qualsiasi momento.</p>
+
+          <h2>Link e servizi esterni</h2>
+          <p>Il sito può contenere collegamenti a pagine o servizi di terze parti. Tali soggetti sono responsabili dei propri contenuti, condizioni d'uso e trattamenti di dati personali.</p>
+
+          <h2>Prima dell'uso pubblico definitivo</h2>
+          <p>Prima di usare il sito per attività professionali, sanitarie o commerciali, è opportuno completare i dati del titolare, verificare diritti su testi e immagini, controllare fonti e autorizzazioni, e far validare le pagine legali da un consulente competente.</p>
+        </section>
+      </article>
+    """
+    (output_dir / "note-legali.html").write_text(shell("Note legali", body, groups), encoding="utf-8")
+
+
 def render_assets(output_dir: Path, articles: list[Article]) -> None:
     index = [
         {
@@ -510,7 +612,7 @@ def clean_generated(output_dir: Path) -> None:
         path = output_dir / name
         if path.exists():
             shutil.rmtree(path)
-    for name in ("indice.html", "ricerca.html", "dichiarazione-cautelativa.html"):
+    for name in ("indice.html", "ricerca.html", "dichiarazione-cautelativa.html", "privacy.html", "cookie.html", "note-legali.html"):
         path = output_dir / name
         if path.exists():
             path.unlink()
@@ -527,6 +629,9 @@ def render(output_dir: Path, articles: list[Article]) -> None:
     render_index_page(output_dir, articles, groups)
     render_search_page(output_dir, groups)
     render_disclaimer_page(output_dir, groups)
+    render_privacy_page(output_dir, groups)
+    render_cookie_page(output_dir, groups)
+    render_legal_page(output_dir, groups)
 
 
 WIKI_JS = """(() => {
