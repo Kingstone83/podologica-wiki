@@ -239,6 +239,7 @@ def sidebar(groups: dict[str, list[Article]], depth: int = 0) -> str:
         <a href="{rel("index.html", depth)}">Pagina principale</a>
         <a href="{rel("indice.html", depth)}">Indice alfabetico</a>
         <a href="{rel("ricerca.html", depth)}">Ricerca</a>
+        <a href="{rel("dichiarazione-cautelativa.html", depth)}">Dichiarazione cautelativa</a>
         <button id="randomArticle" type="button">Una voce a caso</button>
       </nav>
       <h2>Categorie</h2>
@@ -254,6 +255,7 @@ def topbar(depth: int = 0) -> str:
         <a href="{rel("index.html", depth)}">Leggi</a>
         <a href="{rel("indice.html", depth)}">Indice</a>
         <a href="{rel("ricerca.html", depth)}">Cerca</a>
+        <a href="{rel("dichiarazione-cautelativa.html", depth)}">Dichiarazione</a>
       </nav>
       <form class="quick-search" action="{rel("ricerca.html", depth)}">
         <input name="q" type="search" placeholder="Cerca in Wikipodia">
@@ -347,7 +349,7 @@ def render_home(output_dir: Path, articles: list[Article], groups: dict[str, lis
       </section>
 
       <section class="notice">
-        Le informazioni sono divulgative e non sostituiscono una valutazione professionale.
+        Le informazioni sono divulgative e non sostituiscono una valutazione professionale. Leggi anche la <a href="dichiarazione-cautelativa.html">dichiarazione cautelativa</a>.
       </section>
     """
     (output_dir / "index.html").write_text(shell("Pagina principale", body, groups), encoding="utf-8")
@@ -464,6 +466,26 @@ def render_search_page(output_dir: Path, groups: dict[str, list[Article]]) -> No
     (output_dir / "ricerca.html").write_text(shell("Ricerca", body, groups), encoding="utf-8")
 
 
+def render_disclaimer_page(output_dir: Path, groups: dict[str, list[Article]]) -> None:
+    body = """
+      <article class="content-page legal-page">
+        <h1>Dichiarazione cautelativa</h1>
+        <p class="lead">Nota sulla natura provvisoria dei testi e sulla necessità di verifica editoriale, legale e documentale prima della pubblicazione o dell'uso commerciale.</p>
+
+        <section class="legal-text">
+          <p>Dichiaro che i testi in oggetto sono stati prodotti come materiale provvisorio di supporto e non come contenuti originali definitivi.</p>
+
+          <p>La loro redazione è stata effettuata anche con l'ausilio di strumenti di intelligenza artificiale, i quali possono generare contenuti basati su rielaborazioni linguistiche di informazioni diffuse pubblicamente. Non essendo stato mantenuto un tracciamento puntuale delle fonti durante la fase di generazione e revisione, non posso garantire che ogni parte del testo sia completamente originale o priva di analogie con contenuti già esistenti.</p>
+
+          <p>Pertanto, i testi non devono essere considerati idonei alla pubblicazione o all'uso commerciale senza una preventiva verifica editoriale, legale e documentale. Non intendo rivendicare la paternità esclusiva di eventuali porzioni testuali riconducibili a fonti terze.</p>
+
+          <p>L'utilizzo finale dei testi dovrà essere preceduto da revisione, eventuale riscrittura e verifica delle fonti, al fine di evitare violazioni di diritti d'autore, attribuzioni improprie o comunicazioni fuorvianti.</p>
+        </section>
+      </article>
+    """
+    (output_dir / "dichiarazione-cautelativa.html").write_text(shell("Dichiarazione cautelativa", body, groups), encoding="utf-8")
+
+
 def render_assets(output_dir: Path, articles: list[Article]) -> None:
     index = [
         {
@@ -488,7 +510,7 @@ def clean_generated(output_dir: Path) -> None:
         path = output_dir / name
         if path.exists():
             shutil.rmtree(path)
-    for name in ("indice.html", "ricerca.html"):
+    for name in ("indice.html", "ricerca.html", "dichiarazione-cautelativa.html"):
         path = output_dir / name
         if path.exists():
             path.unlink()
@@ -504,6 +526,7 @@ def render(output_dir: Path, articles: list[Article]) -> None:
     render_article_pages(output_dir, articles, groups)
     render_index_page(output_dir, articles, groups)
     render_search_page(output_dir, groups)
+    render_disclaimer_page(output_dir, groups)
 
 
 WIKI_JS = """(() => {
@@ -910,6 +933,19 @@ figure img,
   display: block;
   font-size: 1.12rem;
   font-weight: 700;
+}
+.legal-text {
+  max-width: 860px;
+  border: 1px solid var(--soft-border);
+  border-radius: 4px;
+  background: #fff;
+  padding: 18px 20px;
+}
+.legal-text p {
+  margin: 0 0 14px;
+}
+.legal-text p:last-child {
+  margin-bottom: 0;
 }
 
 @media (max-width: 920px) {
